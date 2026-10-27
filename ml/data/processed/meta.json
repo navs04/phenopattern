@@ -1,0 +1,26 @@
+{
+  "built_utc": "2026-10-25T09:51:38+00:00",
+  "hpo_version": "hp/releases/2026-09-01",
+  "n_terms": 19894,
+  "n_phenotype_terms": 19145,
+  "n_diseases": 12818,
+  "databases": [
+    "OMIM",
+    "ORPHA"
+  ],
+  "hpoa_parse_stats": {
+    "rows": 286651,
+    "wrong_db": 296,
+    "not_phenotype_aspect": 17743,
+    "negated": 726,
+    "excluded_freq": 3072,
+    "unknown_term": 0,
+    "kept": 264814,
+    "diseases": 12818
+  },
+  "sha256": {
+    "hp.obo": "93dace952fcb3ec4728818857f6ba76bc2d5312f4d83266519b8694b8e798f22",
+    "phenotype.hpoa": "e89aa39c8f97bf5a52c5d160f9250a603681d630ade8ec2679d84ac5aece1f72"
+  },
+  "attribution": "Contains data from the Human Phenotype Ontology (https://hpo.jax.org). Check https://hpo.jax.org/app/license for current terms."
+}

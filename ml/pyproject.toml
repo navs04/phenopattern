@@ -1,0 +1,17 @@
+[project]
+name = "phenopattern"
+version = "0.1.0"
+description = "Statistically unusual symptom-pattern detection on simulated patients (research prototype)"
+requires-python = ">=3.11"
+# numpy (Phase 2); scipy, scikit-learn (HDBSCAN), joblib (parallel permutations) (Phase 3).
+dependencies = ["numpy>=1.26", "scipy>=1.11", "scikit-learn>=1.3", "joblib>=1.3"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.5"]
+
+[tool.setuptools.packages.find]
+include = ["phenopattern*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
