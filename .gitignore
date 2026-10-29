@@ -8,3 +8,4 @@ node_modules/
 .env
 ml/data/raw/
 *.egg-info/
+benchmarks/reports/raw/
