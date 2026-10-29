@@ -2,8 +2,8 @@
 
 > **Research prototype. SIMULATED patients only.** Not medical advice; no clinical validity is claimed.
 
-- Data: **HPO hp/releases/2026-09-01**  |  preset: **full**  |  permutations per run: **100**  |  commit: `8328e61`
-- Runs: 510 datasets (0 errors)  |  wall time 159.1 min on 1 worker(s)  |  2026-10-28
+- Data: **HPO hp/releases/2026-09-01**  |  preset: **full**  |  permutations per run: **100**  |  commit: `491dc2d`
+- Runs: 510 datasets (0 errors)  |  wall time 0.0 min on 1 worker(s)  |  2026-10-29
 
 ## 1. Headlines (generated from the numbers below)
 
@@ -11,6 +11,7 @@
 - On **swap-null** datasets (no real pattern exists), the full pipeline reported at least one pattern in 6% [2%-16%] of datasets; plain clustering in 100% [93%-100%]; frequent itemsets in 100% [93%-100%]. Target for the pipeline: at most alpha = 0.05.
 - Recall across the grid: pipeline 47%, plain clustering 62%, itemsets 89%. The significance test costs 15 points of recall relative to plain clustering (it can only remove clusters, never add them).
 - Mean false-discovery proportion in planted datasets: pipeline 0.01, plain clustering 0.93, itemsets 0.66 (target for the pipeline: <= 0.05).
+- Recovery depends strongly on how many terms describe the disease: the pipeline recovered 25% of groups for diseases with <=8 terms (n=109) versus 62% for >=21 terms (n=439).
 - Of the 145 planted groups that clustering found but the test did not call significant, 47 (32%) were near misses (q <= 0.20); median q = 0.35.
 - **Mixed clusters** (mostly planted patients, but from different groups merged together): 1% of the pipeline's significant clusters in the grid. These are not false discoveries (the patients really are unusual) but the grouping is wrong.
 - In the **common-symptom flood** (a large background of patients with only common symptoms, plus a few planted groups), mean FDP was pipeline 0.00, plain clustering 0.98, itemsets 0.89; mean patterns flagged per dataset: pipeline 1.8, plain clustering 154.1, itemsets 439.4.
@@ -107,6 +108,23 @@
 _Many near misses would point to limited statistical power (for example from testing many tiny background clusters); mostly large q-values would point to genuinely weak signal._
 
 
+### 4c. Recovery by disease profile (grid + hard cases)
+
+_Which diseases are detectable at all? Splits by how many HPO terms annotate the disease, its source, and whether annotation frequencies are stated._
+
+| split | groups | pipeline (significant) | plain clustering | itemsets (a) |
+|---|---|---|---|---|
+| profile size: <=8 terms | 109 | 25% [18%-34%] | 50% [40%-59%] | 89% [82%-94%] |
+| profile size: 9-20 terms | 340 | 34% [29%-39%] | 53% [48%-58%] | 84% [80%-88%] |
+| profile size: >=21 terms | 439 | 62% [57%-66%] | 73% [69%-77%] | 93% [90%-95%] |
+| source: OMIM | 555 | 50% [46%-54%] | 65% [61%-69%] | 91% [88%-93%] |
+| source: ORPHA | 333 | 40% [35%-45%] | 58% [53%-63%] | 86% [82%-89%] |
+| stated frequencies: none stated | 106 | 38% [29%-47%] | 64% [55%-73%] | 85% [77%-90%] |
+| stated frequencies: some/all stated | 782 | 47% [44%-51%] | 62% [59%-66%] | 90% [87%-92%] |
+
+![recovery by profile](plots/recovery_by_profile.png)
+
+
 ## 5. Disease-lead accuracy (grid + hard-case groups)
 
 _Leads are only produced for significant clusters. 'Given recovered' conditions on the group having been found; 'overall' counts a missed group as a miss. Leads are possible leads from published annotations, not diagnoses._
@@ -196,6 +214,9 @@ Mean detection run (100 permutations, ~847 patients, one core): 14.4 s. Itemset 
   and false-discovery proportion together, as a pair; the itemset baseline can reach high recall precisely because it flags so many patterns.
 - **Baselines are simple versions.** Itemsets: pairs only, top 3000 patterns by support, greedy merging. A stronger baseline (more
   tuning, larger itemsets, post-hoc filters) might do better; this one is deliberately naive.
+- **Disease-lead accuracy is optimistic by construction (circular).** Planted patients are simulated from the same HPO annotations that the
+  leads are ranked against, so top-k accuracy measures agreement with the annotation source, not diagnostic performance on real patients,
+  whose symptoms deviate from published profiles in ways this simulator does not model.
 - **Confidence bands for disease leads are heuristic.** The calibration table shows whether they track accuracy here; it does not
   validate them on real patients.
 - **Defaults were tuned on a small grid of discovery settings** using tuning seeds; held-out seeds are reported, but both use the same simulator.

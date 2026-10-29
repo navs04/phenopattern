@@ -4,9 +4,9 @@
   "B": 100,
   "source": "HPO hp/releases/2026-09-01",
   "workers": 1,
-  "commit": "8328e61",
-  "date": "2026-10-28",
-  "wall_s": 9547.64088511467
+  "commit": "491dc2d",
+  "date": "2026-10-29",
+  "wall_s": 1.0739965438842773
  },
  "tuning": {
   "rows": [
@@ -1860,6 +1860,175 @@
   },
   "median_z": 2.6430825770817448,
   "median_q": 0.34982151963284036
+ },
+ "recovery_by_profile": {
+  "profile size": {
+   "<=8 terms": {
+    "pipeline": {
+     "k": 27,
+     "n": 109,
+     "rate": 0.24770642201834864,
+     "lo": 0.17618414860824202,
+     "hi": 0.3364069525459422
+    },
+    "plain_clustering": {
+     "k": 54,
+     "n": 109,
+     "rate": 0.4954128440366973,
+     "lo": 0.40331743223547967,
+     "hi": 0.5878205877855055
+    },
+    "itemsets": {
+     "k": 97,
+     "n": 109,
+     "rate": 0.8899082568807339,
+     "lo": 0.8173757042606518,
+     "hi": 0.9358925939556089
+    }
+   },
+   "9-20 terms": {
+    "pipeline": {
+     "k": 114,
+     "n": 340,
+     "rate": 0.3352941176470588,
+     "lo": 0.287199924619515,
+     "hi": 0.3870686920923662
+    },
+    "plain_clustering": {
+     "k": 181,
+     "n": 340,
+     "rate": 0.5323529411764706,
+     "lo": 0.47925076240635117,
+     "hi": 0.5847321878823866
+    },
+    "itemsets": {
+     "k": 287,
+     "n": 340,
+     "rate": 0.8441176470588235,
+     "lo": 0.8017385037582218,
+     "hi": 0.878807422040169
+    }
+   },
+   ">=21 terms": {
+    "pipeline": {
+     "k": 270,
+     "n": 439,
+     "rate": 0.6150341685649203,
+     "lo": 0.5687049956881445,
+     "hi": 0.6593675250506481
+    },
+    "plain_clustering": {
+     "k": 321,
+     "n": 439,
+     "rate": 0.7312072892938497,
+     "lo": 0.6878613893672583,
+     "hi": 0.7705417958800176
+    },
+    "itemsets": {
+     "k": 408,
+     "n": 439,
+     "rate": 0.929384965831435,
+     "lo": 0.9015106748857363,
+     "hi": 0.9498095262877758
+    }
+   }
+  },
+  "source": {
+   "OMIM": {
+    "pipeline": {
+     "k": 279,
+     "n": 555,
+     "rate": 0.5027027027027027,
+     "lo": 0.4612292677370576,
+     "hi": 0.5441389797234035
+    },
+    "plain_clustering": {
+     "k": 363,
+     "n": 555,
+     "rate": 0.654054054054054,
+     "lo": 0.6135421316409749,
+     "hi": 0.6924479736053059
+    },
+    "itemsets": {
+     "k": 505,
+     "n": 555,
+     "rate": 0.9099099099099099,
+     "lo": 0.8831871533597766,
+     "hi": 0.9309970448101521
+    }
+   },
+   "ORPHA": {
+    "pipeline": {
+     "k": 132,
+     "n": 333,
+     "rate": 0.3963963963963964,
+     "lo": 0.3453269190204175,
+     "hi": 0.4498290237134966
+    },
+    "plain_clustering": {
+     "k": 193,
+     "n": 333,
+     "rate": 0.5795795795795796,
+     "lo": 0.525948277922903,
+     "hi": 0.6313957080930761
+    },
+    "itemsets": {
+     "k": 287,
+     "n": 333,
+     "rate": 0.8618618618618619,
+     "lo": 0.8206561091605402,
+     "hi": 0.8948137140441945
+    }
+   }
+  },
+  "stated frequencies": {
+   "none stated": {
+    "pipeline": {
+     "k": 40,
+     "n": 106,
+     "rate": 0.37735849056603776,
+     "lo": 0.29089613915715784,
+     "hi": 0.47239937001241006
+    },
+    "plain_clustering": {
+     "k": 68,
+     "n": 106,
+     "rate": 0.6415094339622641,
+     "lo": 0.5467402280775484,
+     "hi": 0.7263803382652578
+    },
+    "itemsets": {
+     "k": 90,
+     "n": 106,
+     "rate": 0.8490566037735849,
+     "lo": 0.7687951701145022,
+     "hi": 0.9049022268644202
+    }
+   },
+   "some/all stated": {
+    "pipeline": {
+     "k": 371,
+     "n": 782,
+     "rate": 0.4744245524296675,
+     "lo": 0.43963615295990216,
+     "hi": 0.5094630039185322
+    },
+    "plain_clustering": {
+     "k": 488,
+     "n": 782,
+     "rate": 0.6240409207161125,
+     "lo": 0.5895630007624902,
+     "hi": 0.6573060883771021
+    },
+    "itemsets": {
+     "k": 702,
+     "n": 782,
+     "rate": 0.8976982097186701,
+     "lo": 0.8744767848558554,
+     "hi": 0.9170313256844875
+    }
+   }
+  }
  },
  "leads": {
   "all": {
@@ -9755,6 +9924,7 @@
   "On **swap-null** datasets (no real pattern exists), the full pipeline reported at least one pattern in 6% [2%-16%] of datasets; plain clustering in 100% [93%-100%]; frequent itemsets in 100% [93%-100%]. Target for the pipeline: at most alpha = 0.05.",
   "Recall across the grid: pipeline 47%, plain clustering 62%, itemsets 89%. The significance test costs 15 points of recall relative to plain clustering (it can only remove clusters, never add them).",
   "Mean false-discovery proportion in planted datasets: pipeline 0.01, plain clustering 0.93, itemsets 0.66 (target for the pipeline: <= 0.05).",
+  "Recovery depends strongly on how many terms describe the disease: the pipeline recovered 25% of groups for diseases with <=8 terms (n=109) versus 62% for >=21 terms (n=439).",
   "Of the 145 planted groups that clustering found but the test did not call significant, 47 (32%) were near misses (q <= 0.20); median q = 0.35.",
   "**Mixed clusters** (mostly planted patients, but from different groups merged together): 1% of the pipeline's significant clusters in the grid. These are not false discoveries (the patients really are unusual) but the grouping is wrong.",
   "In the **common-symptom flood** (a large background of patients with only common symptoms, plus a few planted groups), mean FDP was pipeline 0.00, plain clustering 0.98, itemsets 0.89; mean patterns flagged per dataset: pipeline 1.8, plain clustering 154.1, itemsets 439.4.",
