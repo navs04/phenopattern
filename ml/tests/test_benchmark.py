@@ -270,6 +270,9 @@ def test_headline_numbers_come_from_the_data(smoke_out):
     for k in kinds:
         assert f"**{k}**" in md
     assert "4b. Found by clustering but not significant" in md and s["misses"]["n"] >= 0
+    assert "4c. Recovery by disease profile" in md and "circular" in md
+    assert set(s["recovery_by_profile"]) == {"profile size", "source", "stated frequencies"}
+    assert "recovery_by_profile.png" in {p.name for p in (smoke_out / "plots").glob("*.png")}
 
 
 def test_report_helpers():

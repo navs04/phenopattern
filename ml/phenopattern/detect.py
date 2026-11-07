@@ -152,6 +152,7 @@ class DetectionResult:
     config: DetectConfig
     runtime_s: float
     null_summary: dict
+    ic: dict = field(default_factory=dict)   # cohort IC per propagated term (used by the backend's /match)
 
     def significant(self) -> list[ClusterResult]:
         return [c for c in self.clusters if c.significant]
@@ -397,7 +398,8 @@ def detect(
                "n_comparable_requested": n_used,
                "null_clusters_per_replicate_mean": float(np.mean(per_rep)) if per_rep else 0.0,
                "observed_clusters_tested": len(clusters)}
-    return DetectionResult(clusters, labels, n, cfg, time.time() - t0, summary)
+    ic_by_term = {t: float(ic[i]) for i, t in enumerate(design.vocab)}
+    return DetectionResult(clusters, labels, n, cfg, time.time() - t0, summary, ic_by_term)
 
 
 def _attach_similar(clusters: list[ClusterResult], ic: np.ndarray, design: Design, top: int = 3) -> None:

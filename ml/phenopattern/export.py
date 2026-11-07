@@ -15,6 +15,7 @@ from dataclasses import asdict
 from pathlib import Path
 
 from .detect import ClusterResult, DetectionResult
+from .ontology import ROOT_ID, Ontology
 from .simulator import Cohort
 
 DISCLAIMER = ("Research prototype validated only on SIMULATED data. Informational and research use only; "
@@ -80,8 +81,19 @@ def match_planted(result: DetectionResult, cohort: Cohort, min_jaccard: float = 
     return out
 
 
+def backend_terms(ontology: Ontology) -> dict:
+    """Slim ontology for the backend: phenotype terms + the root (needed for ancestor chains).
+
+    Only what autosuggest and /match need: id, name, synonyms, parents. No IC, no alt ids.
+    """
+    keep = set(ontology.phenotype_ids()) | {ROOT_ID}
+    return {"version": ontology.version, "terms": [
+        {"id": t.id, "name": t.name, "synonyms": list(t.synonyms), "parents": [p for p in t.parents if p in keep]}
+        for t in (ontology.terms[i] for i in sorted(keep) if i in ontology.terms)]}
+
+
 def write_results(out_dir: Path, result: DetectionResult, hpo_version: str,
-                  cohort: Cohort | None = None) -> None:
+                  cohort: Cohort | None = None, ontology: Ontology | None = None) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     assert all(c.size >= result.config.k for c in result.clusters), "k-anonymity violated at export"
     dump = lambda obj, name: (out_dir / name).write_text(  # noqa: E731
@@ -98,3 +110,7 @@ def write_results(out_dir: Path, result: DetectionResult, hpo_version: str,
         "seed": (cohort.config.seed if cohort is not None else None),
     }
     dump(summary, "cohort_summary.json")
+    # IC of every term in the cohort's propagated vocabulary; /match weights shared symptoms by it.
+    dump({"n_patients": result.n_patients, "ic": {t: round(v, 4) for t, v in sorted(result.ic.items())}}, "cohort_ic.json")
+    if ontology is not None:
+        dump(backend_terms(ontology), "terms.json")

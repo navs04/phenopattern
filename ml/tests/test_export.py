@@ -60,3 +60,21 @@ def test_match_planted_reports_a_miss_when_nothing_is_significant():
     for c in miss.clusters:
         c.significant = False
     assert not any(m["recovered"] for m in match_planted(miss, cohort))
+
+
+def test_backend_files_are_written_and_consistent(tmp_path):
+    from phenopattern.export import write_results
+    cohort, res = planted()
+    write_results(tmp_path, res, "test-version", cohort, ONTO)
+    ic = json.loads((tmp_path / "cohort_ic.json").read_text())
+    terms = json.loads((tmp_path / "terms.json").read_text())
+    clusters = json.loads((tmp_path / "clusters.json").read_text())
+    assert ic["n_patients"] == len(cohort)
+    ids = {t["id"] for t in terms["terms"]}
+    assert "HP:0000001" in ids and all(ONTO.is_phenotype(t) or t == "HP:0000001" for t in ids)
+    for c in clusters:                                    # every displayed term has an IC and a name in the slim ontology
+        for t in c["consensus_terms"]:
+            assert t["id"] in ic["ic"] and t["id"] in ids
+    for t in terms["terms"]:                              # parents stay inside the slim ontology (ancestor chains intact)
+        assert all(p in ids for p in t["parents"])
+    assert set(terms["terms"][0]) == {"id", "name", "synonyms", "parents"}

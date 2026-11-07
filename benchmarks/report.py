@@ -166,6 +166,11 @@ def summarize(results: dict) -> dict:
                 "top10_given_recovered": R(g["rank"] is not None and g["rank"] <= 10 for g in rec),
                 "top1_overall": R(g["rank"] == 1 for g in gs),
                 "top5_overall": R(g["rank"] is not None and g["rank"] <= 5 for g in gs)}
+    S["recovery_by_profile"] = {
+        "profile size": {lab: method_recall([g for g in lead_groups if lo <= g["profile_size"] <= hi]) for lab, lo, hi in PROFILE_BINS},
+        "source": {src: method_recall([g for g in lead_groups if g["source"] == src]) for src in sorted({g["source"] for g in lead_groups})},
+        "stated frequencies": {"none stated": method_recall([g for g in lead_groups if g["known_freq_share"] == 0]),
+                               "some/all stated": method_recall([g for g in lead_groups if g["known_freq_share"] > 0])}}
     S["leads"] = {"all": lead_stats(lead_groups),
                   "by_profile_size": {lab: lead_stats([g for g in lead_groups if lo <= g["profile_size"] <= hi])
                                       for lab, lo, hi in PROFILE_BINS},
@@ -235,6 +240,11 @@ def findings(S: dict) -> list[str]:
         fdp = S["grid_overall"]["fdp"]
         out.append(f"Mean false-discovery proportion in planted datasets: pipeline {f2(fdp['pipeline'])}, "
                    f"plain clustering {f2(fdp['plain_clustering'])}, itemsets {f2(fdp['itemsets'])} (target for the pipeline: <= 0.05).")
+    rp = S["recovery_by_profile"]["profile size"]
+    lo_, hi_ = rp[PROFILE_BINS[0][0]]["pipeline"], rp[PROFILE_BINS[-1][0]]["pipeline"]
+    if lo_["rate"] is not None and hi_["rate"] is not None:
+        out.append(f"Recovery depends strongly on how many terms describe the disease: the pipeline recovered {lo_['rate']:.0%} of groups "
+                   f"for diseases with {PROFILE_BINS[0][0]} (n={lo_['n']}) versus {hi_['rate']:.0%} for {PROFILE_BINS[-1][0]} (n={hi_['n']}).")
     ms = S["misses"]
     if ms["n"]:
         near = ms["bins"]["q <= 0.10"] + ms["bins"]["0.10 < q <= 0.20"]
@@ -276,6 +286,9 @@ LIMITATIONS = """\
   and false-discovery proportion together, as a pair; the itemset baseline can reach high recall precisely because it flags so many patterns.
 - **Baselines are simple versions.** Itemsets: pairs only, top 3000 patterns by support, greedy merging. A stronger baseline (more
   tuning, larger itemsets, post-hoc filters) might do better; this one is deliberately naive.
+- **Disease-lead accuracy is optimistic by construction (circular).** Planted patients are simulated from the same HPO annotations that the
+  leads are ranked against, so top-k accuracy measures agreement with the annotation source, not diagnostic performance on real patients,
+  whose symptoms deviate from published profiles in ways this simulator does not model.
 - **Confidence bands for disease leads are heuristic.** The calibration table shows whether they track accuracy here; it does not
   validate them on real patients.
 - **Defaults were tuned on a small grid of discovery settings** using tuning seeds; held-out seeds are reported, but both use the same simulator.
@@ -326,6 +339,13 @@ def render_markdown(S: dict) -> str:
     L.append(md_table(["q-value of the cluster", "groups"], [[k, v] for k, v in ms["bins"].items()]))
     L.append("_Many near misses would point to limited statistical power (for example from testing many tiny background clusters); "
              "mostly large q-values would point to genuinely weak signal._\n")
+
+    L.append("\n### 4c. Recovery by disease profile (grid + hard cases)\n")
+    L.append("_Which diseases are detectable at all? Splits by how many HPO terms annotate the disease, its source, and whether annotation frequencies are stated._\n")
+    rows = [[f"{title}: {k}", v["pipeline"]["n"], pct(v["pipeline"]), pct(v["plain_clustering"]), pct(v["itemsets"])]
+            for title, d in S["recovery_by_profile"].items() for k, v in d.items()]
+    L.append(md_table(["split", "groups", "pipeline (significant)", "plain clustering", "itemsets (a)"], rows))
+    L.append("![recovery by profile](plots/recovery_by_profile.png)\n")
 
     ld = S["leads"]
     L.append("\n## 5. Disease-lead accuracy (grid + hard-case groups)\n")
@@ -444,6 +464,18 @@ def make_plots(S: dict, out: Path) -> list[str]:
         ax.set_xticks(x); ax.set_xticklabels([v[0] for v in vals]); ax.set_xlabel(title); ax.set_ylim(0, 1)
     axes[0].set_ylabel("planted groups recovered"); axes[1].legend(frameon=False, fontsize=7, loc="upper left", bbox_to_anchor=(1.02, 1))
     save(fig, "recovery_by_size_bg.png")
+
+    # recovery by disease profile size
+    prof = S["recovery_by_profile"]["profile size"]
+    if any(v["pipeline"]["n"] for v in prof.values()):
+        fig, ax = plt.subplots(figsize=(6.5, 3.2))
+        labs = list(prof)
+        x = np.arange(len(labs))
+        for i, (mk, (label, col)) in enumerate(M.items()):
+            annotate(ax.bar(x + (i - 1) * 0.27, [prof[l][mk]["rate"] or 0 for l in labs], 0.27, color=col, label=label), "{:.2f}")
+        ax.set_xticks(x); ax.set_xticklabels([f"{l}\n(n={prof[l]['pipeline']['n']})" for l in labs]); ax.set_ylim(0, 1.12)
+        ax.set_ylabel("planted groups recovered"); ax.legend(frameon=False, fontsize=7, loc="upper left", bbox_to_anchor=(1.02, 1))
+        save(fig, "recovery_by_profile.png")
 
     # lead accuracy
     ld = S["leads"]

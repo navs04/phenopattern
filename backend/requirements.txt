@@ -1,0 +1,4 @@
+# Runtime dependencies only (keeps the Render free-tier image small). Versions are MINIMUMS:
+# after your first successful local run, pin the exact versions you tested (pip freeze) before deploying.
+fastapi>=0.110,<1.0
+uvicorn>=0.27,<1.0

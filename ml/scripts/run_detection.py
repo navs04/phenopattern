@@ -31,6 +31,8 @@ def main() -> None:
     ap.add_argument("--alpha", type=float, default=0.05)
     ap.add_argument("--k", type=int, default=5)
     ap.add_argument("--n-jobs", type=int, default=1)
+    ap.add_argument("--method", choices=["hdbscan", "agglomerative"], default="hdbscan")
+    ap.add_argument("--tau", type=float, default=0.85, help="agglomerative cut height")
     ap.add_argument("--out-dir", type=Path, default=ROOT.parent / "backend" / "data")
     args = ap.parse_args()
 
@@ -44,7 +46,7 @@ def main() -> None:
     print("Building disease index...")
     index = DiseaseIndex(onto, diseases, disease_ic)
     cfg = DetectConfig(alpha=args.alpha, k=args.k, n_permutations=args.permutations,
-                       seed=args.seed, n_jobs=args.n_jobs)
+                       seed=args.seed, n_jobs=args.n_jobs, method=args.method, linkage_threshold=args.tau)
     result = detect(cohort.term_sets(), onto, cfg, index)
 
     print(f"\nDone in {result.runtime_s:.0f}s | tested {len(result.clusters)} clusters | "
@@ -60,7 +62,7 @@ def main() -> None:
     print("\nPlanted vs found (simulated truth):")
     for m in match_planted(result, cohort):
         print(f"  {m['disease_name'][:55]:55} n={m['size']:2d} recovered={m['recovered']} (Jaccard {m['best_jaccard']})")
-    write_results(args.out_dir, result, onto.version, cohort)
+    write_results(args.out_dir, result, onto.version, cohort, onto)
     print(f"\nResults written to {args.out_dir}")
 
 

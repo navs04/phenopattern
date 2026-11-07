@@ -1,0 +1,11 @@
+-r requirements.txt
+pytest>=8
+# Starlette's TestClient prefers httpx2 in newer releases and falls back to httpx (with a deprecation
+# warning) in older ones. Declaring both works with either; pin exact versions after your first green run.
+httpx>=0.26
+httpx2
+# the contract test imports the ML package; install its dependencies too:
+numpy>=1.26
+scipy>=1.11
+scikit-learn>=1.3
+joblib>=1.3
